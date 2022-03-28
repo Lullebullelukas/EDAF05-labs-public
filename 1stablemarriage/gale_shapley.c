@@ -115,7 +115,7 @@ void gs(int **men_prefs, int **women_prefs, int n)
 
     for (i = 0; i < n; ++i)
     {
-        printf("woman: %d, man: %d \n", i, pairs[i]);
+        printf("%d \n", pairs[i]+1);
     }
 }
 
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
     int index;
 
     scanf("%d\n", &n);
-    printf("%d\n", n);
+    // printf("%d\n", n);
     women = make_sq_matrix(n);
     men = make_sq_matrix(n);
 
@@ -156,8 +156,8 @@ int main(int argc, char **argv)
             }
         }
     }
-    print_sq_matrix(men, n);
-    print_sq_matrix(women, n);
+    // print_sq_matrix(men, n);
+    // print_sq_matrix(women, n);
 
     gs(men, women, n);
 }
