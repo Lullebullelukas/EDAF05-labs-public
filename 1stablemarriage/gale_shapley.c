@@ -42,7 +42,12 @@ int noPartner(int *list, int w)
 
 int prefersNewMan(int woman, int *prefs, int man, int *pairs)
 {
-    if (prefs[man] > prefs[pairs[woman]])
+    //prefs[pairs[woman]] current pair pref
+    //prefs[man] new man prio
+    //lower prio better
+
+
+    if (prefs[man] < prefs[pairs[woman]])
     {
         return 1;
     }
@@ -135,14 +140,15 @@ int main(int argc, char **argv)
     {
         scanf("%d", &index);
         --index;
-        if (men[index][0] == -1)
+        if (women[index][0] == -1)
         {
             for (int k = 0; k < n; ++k)
             {
-                // man not read
+                // woman not read
                 int temp;
                 scanf("%d ", &temp);
-                men[index][k] = temp - 1;
+                women[index][temp - 1] = k;
+               
             }
         }
         else
@@ -152,7 +158,7 @@ int main(int argc, char **argv)
             {
                 int temp;
                 scanf("%d ", &temp);
-                women[index][temp - 1] = k;
+                men[index][k] = temp - 1; 
             }
         }
     }
