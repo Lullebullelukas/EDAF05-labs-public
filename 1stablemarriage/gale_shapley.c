@@ -6,9 +6,49 @@ typedef struct list list;
 
 struct listItem
 {
-    int man;
+    int content;
     listItem *next;
-};
+} * head, *tail;
+
+void push(int item)
+{
+    struct listItem *temp;
+    temp = (struct listItem *)malloc(sizeof(struct listItem));
+    temp->content = item;
+    temp->next = NULL;
+    if (tail == NULL)
+    {
+        head = tail = temp;
+    }
+    else
+    {
+        tail->next = temp;
+        tail = temp;
+    }
+}
+
+int pop()
+{
+    // no null saftey needed since peek is used
+    int val = head->content;
+    struct listItem *temp;
+    temp = head;
+    head = head->next;
+    free(temp);
+    return val;
+}
+
+int peek()
+{
+    if (head == NULL)
+    {
+        return -1;
+    }
+    else
+    {
+        return head->content;
+    }
+}
 
 int **make_sq_matrix(int n)
 {
@@ -35,17 +75,16 @@ void print_sq_matrix(int **mat, int n)
     }
 }
 
-int noPartner(int *list, int w)
-{
-    return list[w] == -1;
-}
+// int noPartner(int *list, int w)
+// {
+//     return list[w] == -1;
+// }
 
 int prefersNewMan(int woman, int *prefs, int man, int *pairs)
 {
-    //prefs[pairs[woman]] current pair pref
-    //prefs[man] new man prio
-    //lower prio better
-
+    // prefs[pairs[woman]] current pair pref
+    // prefs[man] new man prio
+    // lower prio better
 
     if (prefs[man] < prefs[pairs[woman]])
     {
@@ -59,8 +98,6 @@ int prefersNewMan(int woman, int *prefs, int man, int *pairs)
 
 void gs(int **men_prefs, int **women_prefs, int n)
 {
-    listItem *men = malloc(sizeof(listItem));
-    listItem *temp = men;
     int *propsedList = calloc(n, sizeof(int));
     int *pairs = malloc(n * sizeof(int));
     int i;
@@ -73,26 +110,16 @@ void gs(int **men_prefs, int **women_prefs, int n)
     }
 
     // init list, should return men
-    for (int i = 0; i < n; ++i)
+    for (i = 0; i < n; ++i)
     {
-        temp->man = i;
-        if (i == n - 1)
-        {
-            temp->next = NULL;
-        }
-        else
-        {
-            temp->next = malloc(sizeof(listItem));
-            temp = temp->next;
-        }
+        push(i);
     }
-    while (men != NULL)
+    while (peek() != -1)
     {
-        m = men->man;
-        men = men->next;
+        m = pop();
         w = men_prefs[m][propsedList[m]];
-        propsedList[m]++;
-        if (noPartner(pairs, w))
+        propsedList[m] = propsedList[m] + 1;
+        if (pairs[w] == -1)
         {
             pairs[w] = m;
         }
@@ -100,27 +127,17 @@ void gs(int **men_prefs, int **women_prefs, int n)
         {
             int oldMan = pairs[w];
             pairs[w] = m;
-
-            // put man back into the thing
-            temp = men;
-            listItem *newMan = malloc(sizeof(listItem));
-            men = newMan;
-            newMan->man = oldMan;
-            men->next = temp;
+            push(oldMan);
         }
         else
         {
-            temp = men;
-            listItem *newMan = malloc(sizeof(listItem));
-            men = newMan;
-            newMan->man = m;
-            men->next = temp;
+            push(m);
         }
     }
 
     for (i = 0; i < n; ++i)
     {
-        printf("%d \n", pairs[i]+1);
+        printf("%d \n", pairs[i] + 1);
     }
 }
 
@@ -139,7 +156,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < 2 * n; ++i)
     {
         scanf("%d", &index);
-        --index;
+        --index; // hack for 0-index
         if (women[index][0] == -1)
         {
             for (int k = 0; k < n; ++k)
@@ -148,22 +165,21 @@ int main(int argc, char **argv)
                 int temp;
                 scanf("%d ", &temp);
                 women[index][temp - 1] = k;
-               
             }
         }
         else
         {
-            // man already read, write to women
+            // woman already read, write to man
             for (int k = 0; k < n; ++k)
             {
                 int temp;
                 scanf("%d ", &temp);
-                men[index][k] = temp - 1; 
+                men[index][k] = temp - 1;
             }
         }
     }
-    // print_sq_matrix(men, n);
-    // print_sq_matrix(women, n);
+    print_sq_matrix(men, n);
+    print_sq_matrix(women, n);
 
     gs(men, women, n);
 }
