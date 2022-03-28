@@ -3,19 +3,11 @@
 
 typedef struct listItem listItem;
 typedef struct list list;
-typedef struct pairList pairList;
 
 struct listItem
 {
     int man;
     listItem *next;
-};
-
-struct pairList
-{
-    int man;
-    int woman;
-    pairList *next;
 };
 
 int **make_sq_matrix(int n)
@@ -43,59 +35,39 @@ void print_sq_matrix(int **mat, int n)
     }
 }
 
-int noPartner(pairList* list, int w) {
-    while(list != NULL) {
-        if ( w == list->woman) {
-            return 0;
-        }
-        list = list->next;
-    }
-    return 1;
+int noPartner(int *list, int w)
+{
+    return list[w] == -1;
 }
 
-int prefersNewMan(int woman , int* prefs, int man, pairList* list) {
-    while(list != NULL) {
-        if ( woman == list->woman) {
-            //found our pair
-            if (prefs[man] > prefs[list->man]) {
-                return 1; 
-            } else {
-                return 0;
-            }
-        }
-        list = list->next;
+int prefersNewMan(int woman, int *prefs, int man, int *pairs)
+{
+    if (prefs[man] > prefs[pairs[woman]])
+    {
+        return 1;
     }
-}
-
-int swapPartner(pairList* list, int woman, int newMan) {
-    pairList* tempList = list;
-    pairList* head = tempList;
-    int removedMan = -1; 
-
-    while(tempList != NULL) {
-        if ( woman == tempList->woman) {
-            //skip the pair
-           removedMan = tempList->man;
-           tempList->man = newMan;
-           return removedMan;
-        }
-        tempList = tempList->next;
+    else
+    {
+        return 0;
     }
-    return removedMan;
 }
 
 void gs(int **men_prefs, int **women_prefs, int n)
 {
-    listItem *head = malloc(sizeof(listItem));
-    listItem *temp = head;
+    listItem *men = malloc(sizeof(listItem));
+    listItem *temp = men;
     int *propsedList = calloc(n, sizeof(int));
-    pairList* pairs = malloc(sizeof(int));
+    int *pairs = malloc(n * sizeof(int));
+    int i;
     int m;
     int w;
-    pairs = NULL;
-    pairList* tempPairs;
 
-    // init list, should return head
+    for (i = 0; i < n; ++i)
+    {
+        pairs[i] = -1;
+    }
+
+    // init list, should return men
     for (int i = 0; i < n; ++i)
     {
         temp->man = i;
@@ -109,35 +81,43 @@ void gs(int **men_prefs, int **women_prefs, int n)
             temp = temp->next;
         }
     }
-    while (head != NULL)
+    while (men != NULL)
     {
-        m = head->man;
-        head = head->next;
+        m = men->man;
+        men = men->next;
         w = men_prefs[m][propsedList[m]];
-        if(noPartner(pairs, w)) {
-            tempPairs = pairs;
-            pairList* newPair = malloc(sizeof(pairList));
-            newPair->man = m; 
-            newPair->woman = w;
-            pairs = newPair;
-            pairs->next = tempPairs;
-        } else if(prefersNewMan(w,women_prefs[w],m, pairs)) {
-           int removedMan = swapPartner(pairs, w, m);
-           temp = head;
-           listItem* newMan = malloc(sizeof(listItem));
-           head = newMan;
-           head->next = temp;
+        propsedList[m]++;
+        if (noPartner(pairs, w))
+        {
+            pairs[w] = m;
+        }
+        else if (prefersNewMan(w, women_prefs[w], m, pairs))
+        {
+            int oldMan = pairs[w];
+            pairs[w] = m;
+
+            // put man back into the thing
+            temp = men;
+            listItem *newMan = malloc(sizeof(listItem));
+            men = newMan;
+            newMan->man = oldMan;
+            men->next = temp;
+        }
+        else
+        {
+            temp = men;
+            listItem *newMan = malloc(sizeof(listItem));
+            men = newMan;
+            newMan->man = m;
+            men->next = temp;
         }
     }
 
-
-    while(pairs != NULL) {
-        printf("woman: %d, man: %d \n", pairs->woman, pairs->man);
-        pairs = pairs->next;
-        //free
+    for (i = 0; i < n; ++i)
+    {
+        printf("woman: %d, man: %d \n", i, pairs[i]);
     }
 }
-
 
 int main(int argc, char **argv)
 {
