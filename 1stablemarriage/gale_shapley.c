@@ -34,6 +34,9 @@ int pop()
     struct listItem *temp;
     temp = head;
     head = head->next;
+    if (head == NULL) {
+       tail = NULL;
+    }
     free(temp);
     return val;
 }
@@ -100,45 +103,59 @@ void gs(int **men_prefs, int **women_prefs, int n)
 {
     int *propsedList = calloc(n, sizeof(int));
     int *pairs = malloc(n * sizeof(int));
+    int oldMan = -1;
     int i;
     int m;
     int w;
 
-    for (i = 0; i < n; ++i)
-    {
-        pairs[i] = -1;
-    }
-
     // init list, should return men
     for (i = 0; i < n; ++i)
     {
+        pairs[i] = -1;
         push(i);
     }
-    while (peek() != -1)
+    while (head != NULL)
     {
         m = pop();
         w = men_prefs[m][propsedList[m]];
         propsedList[m] = propsedList[m] + 1;
+
+        // printf("man is: %d \n", m+1);
+        // printf("woman is: %d \n", w+1);
+        // printf("the pairing the woman has is: %d \n", pairs[w]+1);
+
+
         if (pairs[w] == -1)
         {
+            // has no partner
             pairs[w] = m;
+            // printf("the woman was alone and is now in the pair: %d \n", pairs[w]+1);
         }
         else if (prefersNewMan(w, women_prefs[w], m, pairs))
         {
-            int oldMan = pairs[w];
+            // prefers m over pairs[w]
+            oldMan = pairs[w];
             pairs[w] = m;
+            // printf("the woman prefers her new suitor and is now a pair with: %d \n", pairs[w]+1);
             push(oldMan);
+            // printf("%d was added back to the single men \n", oldMan+1);
         }
         else
-        {
-            push(m);
+        {   
+            // printf("the man : %d was rejected \n",m+1);
+            push(m); 
         }
+        // printf("----------------- \n");
     }
 
+    // printf("this is value of peek: %d \n", peek()+1);
     for (i = 0; i < n; ++i)
     {
-        printf("%d \n", pairs[i] + 1);
+        printf("%d \n", pairs[i]+1);
     }
+
+    free(propsedList);
+    free(pairs);
 }
 
 int main(int argc, char **argv)
@@ -147,13 +164,14 @@ int main(int argc, char **argv)
     int **women;
     int **men;
     int index;
+    int i;
 
     scanf("%d\n", &n);
     // printf("%d\n", n);
     women = make_sq_matrix(n);
     men = make_sq_matrix(n);
 
-    for (int i = 0; i < 2 * n; ++i)
+    for (i = 0; i < 2 * n; ++i)
     {
         scanf("%d", &index);
         --index; // hack for 0-index
@@ -178,8 +196,14 @@ int main(int argc, char **argv)
             }
         }
     }
-    print_sq_matrix(men, n);
-    print_sq_matrix(women, n);
+     print_sq_matrix(men, n);
+     print_sq_matrix(women, n);
 
     gs(men, women, n);
+    for(i = 0; i < n; i++) {
+        free(men[i]);
+        free(women[i]);
+    }
+    free(men);
+    free(women);
 }
