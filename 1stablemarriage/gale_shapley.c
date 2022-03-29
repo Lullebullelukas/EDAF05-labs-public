@@ -56,10 +56,10 @@ int peek()
 int **make_sq_matrix(int n)
 {
     int **a;
-    a = calloc(n, sizeof(int *));
+    a = malloc(n*sizeof(int *));
     for (int i = 0; i < n; ++i)
     {
-        a[i] = calloc(1, sizeof(int));
+        a[i] = calloc(n, sizeof(int));
         a[i][0] = -1;
     }
     return a;
@@ -196,8 +196,8 @@ int main(int argc, char **argv)
             }
         }
     }
-     print_sq_matrix(men, n);
-     print_sq_matrix(women, n);
+    //  print_sq_matrix(men, n);
+    //  print_sq_matrix(women, n);
 
     gs(men, women, n);
     for(i = 0; i < n; i++) {
