@@ -58,7 +58,7 @@ int path_count(int *pred, int s, int t)
 }
 
 // s and t is
-void bfs(char (*words)[n], int (*edges)[n], int s, int t)
+void bfs(char (*words)[n], int **edges, int s, int t, int edgeSizes[n])
 {
     int i;
     int w;
@@ -76,27 +76,25 @@ void bfs(char (*words)[n], int (*edges)[n], int s, int t)
     while (head != NULL)
     {
         v = pop();
-        for (w = 0; w < n; ++w)
+        for (i = 0; i < edgeSizes[v]; ++i)
         {
-            if (edges[v][w])
+            w = edges[v][i];
+            // all neighbors are inside this if statement
+            if (!visited[w])
             {
-                // all neighbors are inside this if statement
-                if (!visited[w])
+                visited[w] = 1;
+                push(w);
+                pred[w] = v;
+                if (w == t)
                 {
-                    visited[w] = 1;
-                    push(w);
-                    pred[w] = v;
-                    if (w == t)
+                    // printf("\n");
+                    printf("%d\n", path_count(pred, s, t));
+                    // empty list here
+                    while (head != NULL)
                     {
-                        // printf("\n");
-                        printf("%d\n", path_count(pred, s, t));
-                        // empty list here
-                        while (head != NULL)
-                        {
-                            pop();
-                        }
-                        return;
+                        pop();
                     }
+                    return;
                 }
             }
         }
@@ -128,17 +126,23 @@ int main(int argc, char *argv[])
         // words[i] = malloc(6 * sizeof(char));
         scanf("%6s", words[i]);
     }
-    int edges[n][n];
+    int *edges[n];
+    int edgeSize[n];
+
+
     for (i = 0; i < n; ++i)
     {
+        edgeSize[i] = 0;
+        edges[i] = NULL;
         for (j = 0; j < n; ++j)
         {
-            edges[i][j] = 0;
             // iterate through the words
             // words[i] is u
             // words[j] is v
             // for loop for last 4 digits
             found = 0;
+            if(i == j)
+                continue;
             strcpy(dummy, words[j]);
             for (k = 1; k < 5; ++k)
             {
@@ -154,15 +158,18 @@ int main(int argc, char *argv[])
                 }
                 // printf("%s\n", dummy);
             }
-            if (found < 4)
+            if (found == 4)
             {
-                edges[i][j] = 0;
-            }
-            else
-            {
-                edges[i][j] = 1;
+                // printf("matches for %s : %s \n", words[i], words[j]);
+                edges[i] = realloc(edges[i], (edgeSize[i]+1) * sizeof(int));
+                edges[i][edgeSize[i]] = j;
+                ++edgeSize[i];
             }
         }
+        // printf("edges for : %s are :", words[i]);
+        //     for(int x = 0; x < edgeSize[i]; ++x)
+        //         printf("%d", edges[i][x]);
+        // printf("\n");
     }
 
     // fetch Query
@@ -191,10 +198,15 @@ int main(int argc, char *argv[])
         }
         else
         {
-            bfs(words, edges, sIndex, tIndex);
+            bfs(words, edges, sIndex, tIndex, edgeSize);
         }
     }
     // freeing the input list
     // for (i = 0; i < n; ++i)
     //     free(words[i]);
+
+    //teardown edges
+    for(i = 0; i < n; ++i) {
+        free(edges[i]);
+    }
 }
