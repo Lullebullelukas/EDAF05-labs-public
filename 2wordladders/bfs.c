@@ -87,7 +87,6 @@ void bfs(char (*words)[n], int **edges, int s, int t, int edgeSizes[n])
                 pred[w] = v;
                 if (w == t)
                 {
-                    // printf("\n");
                     printf("%d\n", path_count(pred, s, t));
                     // empty list here
                     while (head != NULL)
@@ -118,12 +117,8 @@ int main(int argc, char *argv[])
     scanf("%d", &q);
     char words[n][6];
 
-    // printf("n is : %d\n", n);
-    // printf("q is : %d\n", q);
-
     for (i = 0; i < n; ++i)
     {
-        // words[i] = malloc(6 * sizeof(char));
         scanf("%6s", words[i]);
     }
     int *edges[n];
@@ -146,7 +141,7 @@ int main(int argc, char *argv[])
             strcpy(dummy, words[j]);
             for (k = 1; k < 5; ++k)
             {
-                // dummy char here to work on
+                // dummy char here to work 
                 for (h = 0; h < 5; ++h)
                 {
                     if (words[i][k] == dummy[h])
@@ -156,20 +151,15 @@ int main(int argc, char *argv[])
                         break;
                     }
                 }
-                // printf("%s\n", dummy);
             }
             if (found == 4)
             {
-                // printf("matches for %s : %s \n", words[i], words[j]);
                 edges[i] = realloc(edges[i], (edgeSize[i]+1) * sizeof(int));
                 edges[i][edgeSize[i]] = j;
                 ++edgeSize[i];
             }
         }
-        // printf("edges for : %s are :", words[i]);
-        //     for(int x = 0; x < edgeSize[i]; ++x)
-        //         printf("%d", edges[i][x]);
-        // printf("\n");
+        //realloc here for efficiency
     }
 
     // fetch Query
@@ -179,8 +169,6 @@ int main(int argc, char *argv[])
         sIndex = 0;
         scanf("%s", s);
         scanf("%s", t);
-        // printf("%d\n", q);
-        // printf("looping...\n");
         for (i = 0; i < n; ++i)
         {
             if (!strcmp(words[i], s))
@@ -201,9 +189,6 @@ int main(int argc, char *argv[])
             bfs(words, edges, sIndex, tIndex, edgeSize);
         }
     }
-    // freeing the input list
-    // for (i = 0; i < n; ++i)
-    //     free(words[i]);
 
     //teardown edges
     for(i = 0; i < n; ++i) {
