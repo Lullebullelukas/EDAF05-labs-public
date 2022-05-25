@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+import sys
 
 class Node:
     def __init__(self, idx):
@@ -91,6 +91,17 @@ def preflow_push(graph):
             relabel(node)
     return graph.nodes[graph.drain].excess
 
+def remove_neighbours(node_u, node_v):
+    idx = -1
+    for i,node in enumerate(node_u.neighbours):
+        if node is node_v:
+            idx = i
+    node_u.neighbours.pop(idx)
+    for i,node in enumerate(node_v.neighbours):
+        if node is node_u:
+            idx = i
+    node_v.neighbours.pop(idx)
+
 def main():
     N, M, C, P = map(int, input().split(" "))
     nodes = []
@@ -118,14 +129,24 @@ def main():
     vargraph = deepcopy(graph)
     val = preflow_push(vargraph)
     counter = 0
-    while(val > C and counter <= P):
+    while(counter <= P):
         edge = edgeArr[removes[counter]]
+        node_u = graph.nodes[edge[0]]
+        node_v = graph.nodes[edge[1]]
+        remove_neighbours(node_u, node_v)
         graph.edges.pop(edge)
         vargraph = deepcopy(graph)
+        oldval = val
         val = preflow_push(vargraph)
+        if val < C:
+            val = oldval
+            break
+        counter += 1
+        # print(counter)
         
     print(counter, val)
     # print_graph(graph)
     # print("Excess i drain =", graph.nodes[graph.drain].excess)   
 
+sys.setrecursionlimit(10000)
 main()
