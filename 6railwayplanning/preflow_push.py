@@ -1,3 +1,6 @@
+from copy import deepcopy
+
+
 class Node:
     def __init__(self, idx):
         self.idx = idx
@@ -86,12 +89,13 @@ def preflow_push(graph):
             push(graph, node, neighbour)
         else:
             relabel(node)
-    return graph
+    return graph.nodes[graph.drain].excess
 
 def main():
     N, M, C, P = map(int, input().split(" "))
     nodes = []
     edges = dict()
+    edgeArr = []
     for i in range(N):
         node = Node(i)
         nodes.append(node)
@@ -104,10 +108,24 @@ def main():
         edges[(u,v)] = edge
         nodes[u].neighbours.append(node_v)
         nodes[v].neighbours.append(node_u)
+        edgeArr.append((u,v))
+
+    removes = []
+    for i in range(P):
+        removes.append(int(input()))
 
     graph = Graph(N, M, nodes, edges, 0, N-1)
-    preflow_push(graph)
+    vargraph = deepcopy(graph)
+    val = preflow_push(vargraph)
+    counter = 0
+    while(val > C and counter <= P):
+        edge = edgeArr[removes[counter]]
+        graph.edges.pop(edge)
+        vargraph = deepcopy(graph)
+        val = preflow_push(vargraph)
+        
+    print(counter, val)
     # print_graph(graph)
-    print("Excess i drain =", graph.nodes[graph.drain].excess)   
+    # print("Excess i drain =", graph.nodes[graph.drain].excess)   
 
 main()
